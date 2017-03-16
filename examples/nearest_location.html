@@ -1,6 +1,6 @@
 
 <script type="text/javascript" src="../bower_components/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="../js/gmaps.nearest_location.js"></script>
+<script type="text/javascript" src="../js/gmaps.nearby.js"></script>
 
 <link rel="stylesheet" type="text/css" href="../bower_components/bootstrap/dist/css/bootstrap.min.css">
 <script type="text/javascript" src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -41,7 +41,7 @@
 	
 	$.getJSON('../js/records.json')
 	.done(function(res){
-		window.nearest = new nearest_location({
+		window.nearest = new nearby({
 			records: res,
 			position: {lat: 37.4419, lng: -122.1419},
 			unit: $('#value_unit').val(),

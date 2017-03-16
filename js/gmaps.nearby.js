@@ -1,4 +1,4 @@
-var nearest_location = function(options)
+var nearby = function(options)
 {
 	this._options = options;
 	this.center = options.position;
@@ -26,6 +26,11 @@ var nearest_location = function(options)
 	if(this.center)
 	{
 		this.search_nearest();
+	}
+
+	function __set_area(area)
+	{
+		this.area = area;
 	}
 	
 	var _fn = function(parents){
@@ -63,9 +68,14 @@ var nearest_location = function(options)
 			}
 			return this;
 		},
-		update: function()
+		update: function(callback)
 		{
-			return this._parents.search_nearest();
+			var near = this._parents.search_nearest();
+			if(callback)
+			{
+
+			}
+			return 
 		}
 
 	}
@@ -74,9 +84,9 @@ var nearest_location = function(options)
 
 }
 
-nearest_location.prototype = 
+nearby.prototype = 
 {
-	search_nearest: function()
+	search_nearest: function(callback)
 	{
 		this.Utility.check_accepted_unit();
 		var deff = $.Deferred();
@@ -87,6 +97,7 @@ nearest_location.prototype =
 		var unit = this.unit? this.unit : 'K'; //Limit within 1 KM.
 		var data = []
 		var calculate_distance = this.calculate_distance;
+		this.calculate_area(unit, nearest);
 
 		$.each(records, function(index, job)
 		{ 
@@ -101,12 +112,13 @@ nearest_location.prototype =
 			    var nam = center.lat; 
 			    var cou = center.lng; 
 			    //In below line we will get the distance between current and given coordinates.
-			    var d = calculate_distance(nam, cou, lat, lng, unit);
+			    var d = calculate_distance(nam, cou, lat, lng, unit, nearest);
 			    //Check the d is within 1 KM, If so then add it to map.
-			    if(nearest>d)
+			    if(nearest>d.data)
 			    {
-			    	job.distance = d;
+			    	job.distance = d.data;
 			    	data.push(job)
+
 			    }
 			}
 		}) 
@@ -117,7 +129,11 @@ nearest_location.prototype =
 		this._result_nearest = data;
 		if(typeof this._options.done == 'function')
 		{
-			this._options.done(data)
+			this._options.done(data, this)
+		}
+		if(typeof callback == 'function')
+		{
+			callback(data, this)
 		}
 		// deff.resolve(data);
 
@@ -126,7 +142,25 @@ nearest_location.prototype =
 
 		
 	},
-	calculate_distance: function(yourLat, yourLong, targetLat, targetLong, unit) {
+	calculate_area: function(unit, length)
+	{
+		var area = 0;
+		switch(unit)
+	    {
+	    	case "K":
+	    		area = length * 1000;
+	    		break;
+	    	case "N":
+	    		area = length * 1852;
+	    		break;
+	    	case "M":
+
+	    		area = length;
+	    		break;
+	    }
+	    this.area = area;
+	},
+	calculate_distance: function(yourLat, yourLong, targetLat, targetLong, unit, distance) {
 	    var radlat1 = Math.PI * yourLat/180
 	    var radlat2 = Math.PI * targetLat/180
 	    var radlon1 = Math.PI * yourLong/180
@@ -134,6 +168,7 @@ nearest_location.prototype =
 	    var theta = yourLong-targetLong
 	    var radtheta = Math.PI * theta/180
 	    var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+	    var area = 0;
 	    dist = Math.acos(dist)
 	    dist = dist * 180/Math.PI
 	    dist = dist * 60 * 1.1515
@@ -141,17 +176,19 @@ nearest_location.prototype =
 	    {
 	    	case "K":
 	    		dist = dist * 1.609344;
+	    		area = distance * 1000;
 	    		break;
 	    	case "N":
 	    		dist = dist * 0.8684;
+	    		area = distance * 1852;
 	    		break;
 	    	case "M":
 
 	    		dist = dist * 1.609344;
 	    		dist = dist * 1000;
+	    		area = distance;
 	    		break;
 	    }
-	    
-	    return dist
+	    return {data: dist, area: area}
 	}
 }

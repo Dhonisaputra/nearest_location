@@ -119,5 +119,28 @@ Gmaps.prototype =
 
         marker = new google.maps.Marker(options);
         return marker;
+	},
+	set_area: function(options)
+	{
+		options = $.extend({
+            strokeColor: '#FF0000',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: '#FF0000',
+            fillOpacity: 0.35,
+            map: this.__map,
+            center: this.__data_position,
+            radius: 1000
+      	}, options)
+		var __parents = this;
+		if(options.area)
+		{
+
+			options.area.setOptions(options);
+			return options.area;
+		}else
+		{
+			return new google.maps.Circle(options);
+		}
 	}
 }

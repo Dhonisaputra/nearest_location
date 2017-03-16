@@ -1,6 +1,6 @@
 
 <script type="text/javascript" src="../bower_components/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="../js/gmaps.nearest_location.js"></script>
+<script type="text/javascript" src="../js/gmaps.nearby.js"></script>
 <script type="text/javascript" src="../js/gmaps.creator.js"></script>
 
 <link rel="stylesheet" type="text/css" href="../bower_components/bootstrap/dist/css/bootstrap.min.css">
@@ -75,11 +75,20 @@ $(document).ready(function(){
 	.done(function(res){
 		
 	})*/
-	window.nearest = new nearest_location({
+	window.nearest = new nearby({
 		records: Cookies.getJSON('marker'),
 		unit: $('#value_unit').val(),
 		distance: $('#value_nearest').val(),
-	    done: function (res){
+	    done: function (res, events){
+	    	if(window.gmaps)
+	    	{
+	    		console.log(window.area)
+	    		window.area = window.gmaps.set_area({
+					radius: events.area,
+					area: window.area?window.area: undefined
+				})
+	    	}
+	    	console.log(events)
 	    	$('#nearest_list ul li').remove();
 			$.each(res, function(a,b){
 				$('#nearest_list ul').append('<li> Nama:'+b.label+' ('+b.distance+') </li>')
@@ -99,6 +108,7 @@ $(document).ready(function(){
 			renderExistingMarker()
 
 			window.nearest.set_position(res.gmaps.__data_position.lat, window.gmaps.__data_position.lng, true)
+
 		}
 	})
 	
