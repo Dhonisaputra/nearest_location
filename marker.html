@@ -1,0 +1,161 @@
+<!DOCTYPE html >
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <title>From Info Windows to a Database: Saving User-Added Form Data</title>
+
+    <script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.1.3/js.cookie.min.js"></script>
+
+
+
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map" height="460px" width="100%"></div>
+    <div id="form">
+      <table>
+      <tr><td>Name:</td> <td><input type='text' id='name'/> </td> </tr>
+      <tr><td>Address:</td> <td><input type='text' id='address'/> </td> </tr>
+      <tr><td>Type:</td> <td><select id='type'> +
+                 <option value='bar' SELECTED>bar</option>
+                 <option value='restaurant'>restaurant</option>
+                 </select> </td></tr>
+                 <tr><td></td><td><input type='button' value='Save' onclick='saveData()'/></td></tr>
+      </table>
+    </div>
+    <div id="message">Location saved</div>
+    <script>
+      var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      var labelIndex = 0;
+      
+      var map;
+      var marker;
+      var infowindow;
+      var messagewindow;
+      window._mark = Cookies.getJSON('marker')? Cookies.getJSON('marker') : []
+
+      function retrieved_marker(map)
+      {
+        var a = window._mark;
+        if(a.length > 0)
+        {
+          $.each(a, function(c,d){
+            set_marker(map, d.lat, d.lng, d.name)             
+          })
+        }
+      }
+      function set_marker(map, lat, lng, label)
+      {
+        var center = {lat: lat, lng:lng}
+        label = label? label : labels[labelIndex++ % labels.length];
+        marker = new google.maps.Marker({
+          position: center,
+          label: label,
+          map: map
+        });
+        return marker;
+      }
+
+      function initMap() {
+        var california = {lat: 37.4419, lng: -122.1419};
+        window.map = new google.maps.Map(document.getElementById('map'), {
+          center: california,
+          zoom: 33
+        });
+        window.infoWindow = new google.maps.InfoWindow({map: window.map});
+        // Try HTML5 geolocation.
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            var pos = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+
+            window.infoWindow.setPosition(pos);
+            window.infoWindow.setContent('Location found.');
+            window.map.setCenter(pos);
+            new google.maps.Marker({
+                position: pos,
+                map: window.map,
+                icon: 'http://www.robotwoods.com/dev/misc/bluecircle.png'
+            });
+          }, function() {
+            handleLocationError(true, infoWindow, map.getCenter());
+          });
+        }
+
+        retrieved_marker(window.map)
+        set_marker(window.map, california.lat, california.lng, 'center')
+
+        infowindow = new google.maps.InfoWindow({
+          content: document.getElementById('form')
+        })
+
+        messagewindow = new google.maps.InfoWindow({
+          content: document.getElementById('message')
+        });
+
+        google.maps.event.addListener(map, 'click', function(event) {
+          var marker = set_marker(window.map, event.latLng.lat(), event.latLng.lng())
+          
+
+
+          google.maps.event.addListener(marker, 'click', function() {
+            infowindow.open(map, marker);
+          });
+        });
+      }
+
+      function saveData() {
+        var name = document.getElementById('name').value;
+        var address = escape(document.getElementById('address').value);
+        var type = document.getElementById('type').value;
+        var latlng = marker.getPosition();
+        var data = {
+          lat: latlng.lat(),
+          lng: latlng.lng(),
+          name: name,
+          address: address,
+        }
+        window._mark.push(data)
+        Cookies.set('marker', window._mark);
+        infowindow.close();
+        
+      }
+
+      function downloadUrl(url, callback) {
+        var request = window.ActiveXObject ?
+            new ActiveXObject('Microsoft.XMLHTTP') :
+            new XMLHttpRequest;
+
+        request.onreadystatechange = function() {
+          if (request.readyState == 4) {
+            request.onreadystatechange = doNothing;
+            callback(request.responseText, request.status);
+          }
+        };
+
+        request.open('GET', url, true);
+        request.send(null);
+      }
+
+      function doNothing () {
+      }
+
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh-AjDqGUrFxSjWnKcfCQKMCw2UYpkEuA&callback=initMap" async defer></script>
+  </body>
+</html>
