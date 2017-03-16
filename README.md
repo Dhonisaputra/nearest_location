@@ -7,9 +7,10 @@ var nearest = new nearest_location({
 	records: [{location_1}, {location_2}, ..., {location_n}],
 	center: {lat: 37.4419, lng: -122.1419}, // your lat and lng position
 	unit: 'M', // ['M','K', 'N']
-  distance: 12,
-    done: function (res){ // callback when search nearest location is done
-  }
+  	distance: 12,
+    	done: function (res){ // callback when search nearest location is done
+  		console.log(res)
+	}
 })
 
 ````
@@ -28,3 +29,14 @@ nearest.set_distance(value)
 nearest.update()
 ````
 
+- options records form
+````javascript
+[
+	{
+		lat: 'value_latitude', // required
+		lng: 'value_longitude', // required
+		...
+		other_object
+	}
+]
+````
