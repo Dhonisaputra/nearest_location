@@ -1,0 +1,13 @@
+{
+  "name": "nearest_location",
+  "description": "search nearest location",
+  "authors": [
+    "dhonipsaputra"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Dhonisaputra/nearest_location",
+  "dependencies": {
+    "jquery": "^3.1.1",
+    "bootstrap": "^3.3.7"
+  }
+}

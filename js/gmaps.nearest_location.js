@@ -1,7 +1,7 @@
 var nearest_location = function(options)
 {
 	this._options = options;
-	this.center = options.center;
+	this.center = options.position;
 	this.records = options.records;
 	this.unit = options.unit;
 	this.distance = options.distance;
@@ -23,7 +23,10 @@ var nearest_location = function(options)
 		}
 	}
 
-	this.search_nearest();
+	if(this.center)
+	{
+		this.search_nearest();
+	}
 	
 	var _fn = function(parents){
 		this._parents = parents;
@@ -52,7 +55,7 @@ var nearest_location = function(options)
 		},
 		set_position: function(lat, long, autoupdate)
 		{
-			if(!lat || !lng){ alert('distance cannot be empty!'); return false; }
+			if(!lat || !long){ alert('distance cannot be empty!'); return false; }
 			this._parents.center = {lat: lat, lng: long};
 			if(autoupdate)
 			{

@@ -1,0 +1,107 @@
+
+<script type="text/javascript" src="../bower_components/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="../js/gmaps.nearest_location.js"></script>
+<script type="text/javascript" src="../js/gmaps.creator.js"></script>
+
+<link rel="stylesheet" type="text/css" href="../bower_components/bootstrap/dist/css/bootstrap.min.css">
+<script type="text/javascript" src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="../css/nearest_location_with_map.css">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.1.3/js.cookie.min.js"></script>
+
+
+<body class="container">
+	<div class="alert alert-warning">
+		Belum ada marker? silahkan tambahkan <a class="btn btn-warning btn-sm" href="create_marker.html">di sini</a>
+	</div>
+	<div class="row">
+		<div class="col-md-2">
+			<div class="form-group">
+				
+				<label>Ganti unit</label>	
+				<select class="form-control" id="value_unit" onchange="var value = $(this).val();window.nearest.set_unit( value, true )">
+					<option value="K" selected>Kilometer</option>
+					<option value="M">Meter</option>
+					<option value="N">Miles</option>
+				</select>
+
+			</div>
+		</div>
+		<div class="col-md-2">
+			<div class="form-group">
+				<label>Ganti luas jangkauan</label>	
+				<input type="number" class="form-control" name="" id="value_nearest" onkeyup="var value = $(this).val(); window.nearest.set_distance(value , true )" value="1">
+			</div>
+		</div>
+	</div>
+	<fieldset id="maps">
+		<legend>Maps</legend>
+		<div class="maps-canvas"></div>
+	</fieldset>
+
+	<fieldset id="nearest_list">
+		<legend>Nearest Location</legend>
+		<ul>
+			
+		</ul>
+	</fieldset>
+
+</body>
+
+<script type="text/javascript">
+function renderExistingMarker()
+	{
+		if(Cookies.getJSON('marker'))
+		{
+			var data = Cookies.getJSON('marker');
+			$.each(data, function(a,b){
+
+				set_marker({
+					position: {lat: b.lat, lng: b.lng},
+					label: b.label
+				})
+			})
+		}
+	}
+	function set_marker(options)
+	{
+		var options = $.extend({
+        }, options)
+		var marker =  window.gmaps.set_marker(options)
+
+	}
+$(document).ready(function(){
+	/*$.getJSON('../js/records.json')
+	.done(function(res){
+		
+	})*/
+	window.nearest = new nearest_location({
+		records: Cookies.getJSON('marker'),
+		unit: $('#value_unit').val(),
+		distance: $('#value_nearest').val(),
+	    done: function (res){
+	    	$('#nearest_list ul li').remove();
+			$.each(res, function(a,b){
+				$('#nearest_list ul').append('<li> Nama:'+b.label+' ('+b.distance+') </li>')
+			})
+	    }
+	})
+
+	window.gmaps = new Gmaps({
+		APIkey: 'AIzaSyCh-AjDqGUrFxSjWnKcfCQKMCw2UYpkEuA',
+		target: '.maps-canvas',
+		geolocation: true,
+		map_options: {
+			zoom: 13
+		},
+		onRender: function(res)
+		{
+			renderExistingMarker()
+
+			window.nearest.set_position(res.gmaps.__data_position.lat, window.gmaps.__data_position.lng, true)
+		}
+	})
+	
+
+})
+</script>

@@ -1,0 +1,21 @@
+{
+  "name": "nearest_location",
+  "version": "1.0.0",
+  "description": "search nearest location",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dhonisaputra/nearest_location.git"
+  },
+  "author": "dhonipsaputra",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Dhonisaputra/nearest_location/issues"
+  },
+  "homepage": "https://github.com/Dhonisaputra/nearest_location#readme"
+}

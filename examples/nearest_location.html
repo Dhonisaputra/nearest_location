@@ -1,0 +1,58 @@
+
+<script type="text/javascript" src="../bower_components/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="../js/gmaps.nearest_location.js"></script>
+
+<link rel="stylesheet" type="text/css" href="../bower_components/bootstrap/dist/css/bootstrap.min.css">
+<script type="text/javascript" src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+<body class="container">
+	<div class="row">
+		<div class="col-md-2">
+			<div class="form-group">
+				
+				<label>Ganti unit</label>	
+				<select class="form-control" id="value_unit" onchange="var value = $(this).val();window.nearest.set_unit( value, true )">
+					<option value="K" selected>Kilometer</option>
+					<option value="M">Meter</option>
+					<option value="N">Miles</option>
+				</select>
+
+			</div>
+		</div>
+		<div class="col-md-2">
+			<div class="form-group">
+				<label>Ganti lebar</label>	
+				<input type="number" class="form-control" name="" id="value_nearest" onchange="var value = $(this).val(); window.nearest.set_distance(value , true )" value="1">
+			</div>
+		</div>
+	</div>
+
+	<fieldset id="nearest_list">
+		<legend>Nearest Location</legend>
+		<ul>
+			
+		</ul>
+	</fieldset>
+</body>
+
+<script type="text/javascript">
+
+
+	
+	$.getJSON('../js/records.json')
+	.done(function(res){
+		window.nearest = new nearest_location({
+			records: res,
+			position: {lat: 37.4419, lng: -122.1419},
+			unit: $('#value_unit').val(),
+			distance: $('#value_nearest').val(),
+		    done: function (res){
+		    	$('#nearest_list ul li').remove();
+				$.each(res, function(a,b){
+					$('#nearest_list ul').append('<li> Nama:'+b.name+' ('+b.distance+') </li>')
+				})
+		    }
+		})
+	})
+
+</script>

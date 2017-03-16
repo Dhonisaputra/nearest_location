@@ -1,0 +1,138 @@
+
+<script type="text/javascript" src="../bower_components/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="../js/gmaps.nearest_location.js"></script>
+<script type="text/javascript" src="../js/gmaps.creator.js"></script>
+
+<link rel="stylesheet" type="text/css" href="../bower_components/bootstrap/dist/css/bootstrap.min.css">
+<script type="text/javascript" src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.1.3/js.cookie.min.js"></script>
+
+
+<link rel="stylesheet" type="text/css" href="../css/nearest_location_with_map.css">
+
+<body class="container">
+	<div class="alert alert-warning">
+		Ingin melihat lokasi terdekat? silahkan klik <a class="btn btn-warning btn-sm" href="nearest_location_with_map.html">di sini</a>
+	</div>
+	
+	<fieldset id="maps">
+		<legend>Maps</legend>
+		<div class="maps-canvas"></div>
+	</fieldset>
+
+	<fieldset id="marker_list">
+		<legend>Your Marker</legend>
+		<ul>
+			
+		</ul>
+	</fieldset>
+
+	<!-- Modal -->
+	<div class="modal fade" id="modal_set_marker" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">Modal title</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label>cluster</label>
+						<input type="hidden" name="" class="form-control" id="cluster">	
+					</div>
+					<div class="form-group">
+						<label>Label</label>
+						<input type="text" name="" class="form-control" id="label">	
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary" onclick="save_marker()">Save changes</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+
+<script type="text/javascript">
+
+	var _marker_list = [];
+	var _marker_data = [];
+	function save_marker()
+	{
+		var index = $('#cluster').val();
+		var label = $('#label').val();
+		var data = _marker_data[index];
+		var lat = _marker_list[index].getPosition().lat();
+		var lng = _marker_list[index].getPosition().lng();
+
+		_marker_list[index].setLabel(label)
+		_marker_list[index] = {
+			lat: lat,
+			lng: lng,
+			label: label,
+			index: index
+		}
+
+		Cookies.set('marker', _marker_list);
+
+		$('#modal_set_marker').modal('hide')
+		$('#label').val('');
+	}
+	function add_marker(marker)
+	{
+		_marker_data.push(marker);
+		marker_index = _marker_list.push(marker);
+		marker_index -=1 
+		$('#marker_list ul').append('<li> Marker '+marker_index+' </li>')
+		$('input#cluster').val(marker_index)
+		$('#modal_set_marker').modal('show')
+	}
+	function renderExistingMarker()
+	{
+		if(Cookies.getJSON('marker'))
+		{
+			var data = Cookies.getJSON('marker');
+			$.each(data, function(a,b){
+				_marker_data.push(b);
+				_marker_list.push(b);
+
+				set_marker({
+					position: {lat: b.lat, lng: b.lng},
+					label: b.label
+				})
+			})
+		}
+	}
+	function set_marker(options)
+	{
+		var options = $.extend({
+        }, options)
+		var marker =  window.gmaps.set_marker(options)
+
+	}
+$(document).ready(function(){
+
+	window.gmaps = new Gmaps({
+		APIkey: 'AIzaSyCh-AjDqGUrFxSjWnKcfCQKMCw2UYpkEuA',
+		target: '.maps-canvas',
+		geolocation: true,
+		map_options: {
+			zoom: 13
+		},
+		onRender: function(res)
+		{			
+			renderExistingMarker();
+			google.maps.event.addListener(window.gmaps.__map, 'click', function(event) {
+		        set_marker({
+		         	position: {lat: event.latLng.lat() , lng: event.latLng.lng() },
+		        })
+        		add_marker(marker)
+		    });
+		}
+	})
+	
+
+})
+</script>
